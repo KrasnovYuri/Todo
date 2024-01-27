@@ -28,7 +28,7 @@ class TodoListViewController: UITableViewController {
         newItem3.title = "Destroy Demogorgon"
         itemArray.append(newItem3)
         
-        //itemArray = defaults.array(forKey: "TodoListArray") as? [Item] ?? []
+        loadItems()
     }
     
     // MARK: - Tableview DataSource Methods
@@ -102,6 +102,17 @@ class TodoListViewController: UITableViewController {
             print("\(error)")
         }
         self.tableView.reloadData()
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("\(error)")
+            }
+        }
     }
 
 }
