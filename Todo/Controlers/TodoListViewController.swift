@@ -11,7 +11,7 @@ class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +28,7 @@ class TodoListViewController: UITableViewController {
         newItem3.title = "Destroy Demogorgon"
         itemArray.append(newItem3)
         
-//        itemArray = defaults.array(forKey: "TodoListArray") as? [String] ?? []
+        //itemArray = defaults.array(forKey: "TodoListArray") as? [Item] ?? []
     }
     
     // MARK: - Tableview DataSource Methods
@@ -56,6 +56,8 @@ class TodoListViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
+        saveItems()
+        
         tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -76,9 +78,7 @@ class TodoListViewController: UITableViewController {
             
             self.itemArray.append(newElement)
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            self.tableView.reloadData()
+            self.saveItems()
         }
         alert.addTextField { alertTextField in
             alertTextField.placeholder = "Create new item"
@@ -90,7 +90,19 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-
+    // MARK: - Model Manipulation Methods
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath ?? URL(fileURLWithPath: ""))
+        } catch {
+            print("\(error)")
+        }
+        self.tableView.reloadData()
+    }
 
 }
 
